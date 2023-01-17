@@ -1,18 +1,26 @@
 import telebot
 
-bot = telebot.TeleBot("Token")
+bot = telebot.TeleBot("TOKEN DEL BOT")
 
 # Lista de ID de contactos a los que se reenviarán los mensajes
-contact_ids = []
+contact_ids = ["CHATID_del_Admin"]
 
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['start','inicio'])
 def start(message):
-    bot.send_message(message.chat.id, "Bienvenido, a ChatAnonimo \n\n preciona \conectarme para resivir mensajes")
+    bot.send_message(message.chat.id, "Bienvenido, a Chat con el Admin \n\n Envia tus videos o imagens mas una pequeña informacion de las mismas ")
 
 @bot.message_handler(commands=['chatid'])
 def chaid(message):
     bot.send_message(message.chat.id, f"Tu chat ID es: {message.chat.id}")
 
+@bot.message_handler(commands=['responder'])
+def responder(message):
+    command, chat_id, *text = message.text.split()
+    if chat_id.isnumeric():
+        bot.send_message(chat_id, " ".join(text))
+    else:
+        bot.send_message(message.chat.id, "Formato de comando invalido, el comando debe ser '/responder [chat_id] [mensaje]'")
+        
 @bot.message_handler(commands=['addchatid'])
 def add_chat_id(message):
     new_ids = message.text.split()[1:]
@@ -38,9 +46,11 @@ def connect_me(message):
 def repeat_messages(message):
     for contact_id in contact_ids:
         bot.forward_message(contact_id, message.chat.id, message.message_id)
+        bot.send_message(contact_id, f"ID de chat de origen: {message.chat.id}")
     if message.chat.id not in contact_ids:
-        bot.send_message(message.chat.id, "✅ el Administrador lo a recivido.")
+        bot.send_message(message.chat.id, f"✅ el Administrador lo a recivido.")
+
+
 
 bot.delete_webhook()
 bot.polling()
-
