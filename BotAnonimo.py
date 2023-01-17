@@ -7,7 +7,7 @@ contact_ids = []
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.send_message(message.chat.id, "Bienvenido, a Aportes Anonimo \n\n Envia tus videos o imagens mas una pequeña informacion de las mismas como #Instagram #facebook #twitter #ciudad \n\n GRUPO:\n @bsaszona ")
+    bot.send_message(message.chat.id, "Bienvenido, a ChatAnonimo \n\n preciona \conectarme para resivir mensajes")
 
 @bot.message_handler(commands=['chatid'])
 def chaid(message):
