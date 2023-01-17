@@ -1,42 +1,46 @@
 import telebot
 
-bot = telebot.TeleBot("token del bot")
+bot = telebot.TeleBot("Token")
 
-# ID del contacto al que se reenviarán los mensajes
-contact_id = #chatit entre la pesona y el bot donde se redirigira los mensajes
+# Lista de ID de contactos a los que se reenviarán los mensajes
+contact_ids = []
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.send_message(message.chat.id, "Bienvenido, ahora puede enviar tus aportes anonimamente.")
-
-
-@bot.message_handler(commands=['Aporte'])
-def resend_history(message):
-    # Obtener todos los mensajes en el historial del chat
-    history = bot.get_chat_history(message.chat.id)
-    for msg in history:
-        # Reenviar cada mensaje a contact_id
-        bot.forward_message(contact_id, message.chat.id, msg.message_id)
+    bot.send_message(message.chat.id, "Bienvenido, a Aportes Anonimo \n\n Envia tus videos o imagens mas una pequeña informacion de las mismas como #Instagram #facebook #twitter #ciudad \n\n GRUPO:\n @bsaszona ")
 
 @bot.message_handler(commands=['chatid'])
-def send_chat_id(message):
-    bot.send_message(message.chat.id, f"El ID de este chat es: {message.chat.id}")
-    bot.send_message(message.chat.id, "✅ el Administrador lo a recivido.")
+def chaid(message):
+    bot.send_message(message.chat.id, f"Tu chat ID es: {message.chat.id}")
 
-@bot.message_handler(content_types=['text'])
-def repeat_text_messages(message):
-    bot.forward_message(contact_id, message.chat.id, message.message_id)
-    bot.send_message(message.chat.id, "✅ el Administrador lo a recivido.")
+@bot.message_handler(commands=['addchatid'])
+def add_chat_id(message):
+    new_ids = message.text.split()[1:]
+    ids_valid = True
+    for new_id in new_ids:
+        if not new_id.isnumeric():
+            ids_valid = False
+    if ids_valid:
+        contact_ids.extend(list(map(int, new_ids)))
+        bot.send_message(message.chat.id, f"Los siguientes ID de chat agregados a la lista de reenvío: {new_ids}")
+    else:
+        bot.send_message(message.chat.id, "Formato de comando invalido, el comando debe ser '/addchatid [id_chat1] [id_chat2] ...'")
 
-@bot.message_handler(content_types=['photo'])
-def repeat_photo_messages(message):
-    bot.forward_message(contact_id, message.chat.id, message.message_id)
-    bot.send_message(message.chat.id, "✅ el Administrador lo a recivido.")
+@bot.message_handler(commands=['conectame'])
+def connect_me(message):
+    if message.chat.id not in contact_ids:
+        contact_ids.append(message.chat.id)
+        bot.send_message(message.chat.id, "Tu ID de chat ha sido agregado a la lista de reenvío.")
+    else:
+        bot.send_message(message.chat.id, "Tu ID de chat ya está en la lista de reenvío.")
 
-@bot.message_handler(content_types=['video'])
-def repeat_video_messages(message):
-    bot.forward_message(contact_id, message.chat.id, message.message_id)
-    bot.send_message(message.chat.id, "✅ el Administrador lo a recivido.")
+@bot.message_handler(content_types=['text','photo','video'])
+def repeat_messages(message):
+    for contact_id in contact_ids:
+        bot.forward_message(contact_id, message.chat.id, message.message_id)
+    if message.chat.id not in contact_ids:
+        bot.send_message(message.chat.id, "✅ el Administrador lo a recivido.")
 
 bot.delete_webhook()
 bot.polling()
+
